@@ -1,0 +1,29 @@
+# Private resumes and generated outputs
+resume/*
+career-output/*
+examples/generated-career-pack/*
+
+# Keep directory placeholders
+!resume/.gitkeep
+!career-output/.gitkeep
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Environment and secrets
+.env
+.env.*
+*.pem
+*.key
+id_rsa
+id_dsa
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

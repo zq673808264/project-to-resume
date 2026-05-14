@@ -1,0 +1,4 @@
+interface:
+  display_name: "Project to Resume"
+  short_description: "Build truthful career artifacts from code projects"
+  default_prompt: "Use $project-to-resume to turn this AI-assisted coding project into a truthful resume entry, interview prep, and portfolio-ready project story."

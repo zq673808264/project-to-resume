@@ -14,62 +14,72 @@ Do not invent technologies, metrics, business impact, team size, users, revenue,
 ## Workflow
 
 1. Identify the target project directory. Default to the current repository unless the user names another path.
-2. Identify the user's existing resume if provided. Prefer `.md`, `.txt`, `.docx`, then `.pdf`. If no resume is available, still create a standalone project entry draft.
-3. If the project is still in progress and the user wants continuous recording, append a development log:
+2. Immediately prepare project-local folders:
+
+```bash
+python path/to/project-to-resume/scripts/prepare_resume_workspace.py --project <project-dir>
+```
+
+This creates `<project-dir>/resume/` for optional user inputs and `<project-dir>/career-output/` for generated files.
+
+3. Ask the user whether they want to provide an existing resume and/or a target job description. Keep the question short:
+
+`Do you want to add an existing resume or target JD? If yes, put the files in <project-dir>/resume/ and tell me when ready. If not, I will generate a blank-resume draft from this project.`
+
+Wait for a clear answer when possible.
+
+4. If the user says yes, inspect `<project-dir>/resume/` and use available files:
+   - Existing resume: prefer `.docx`, then `.md`, `.txt`, `.pdf`.
+   - Job description: prefer filenames containing `jd`, `job`, `岗位`, or `职位` with `.md` or `.txt`.
+   - If files are missing after the user says they are ready, ask once more or continue with the blank-resume path if they prefer.
+5. If the user says no or provides no files, continue without `--resume` or `--job-description`. Generate a new resume draft from a blank structure plus the project entry.
+6. If the project is still in progress and the user wants continuous recording, append a development log:
 
 ```bash
 python path/to/project-to-resume/scripts/update_dev_log.py --project <project-dir>
 ```
 
-4. For completed or review-ready work, run `scripts/collect_project_context.py` to create an evidence pack:
+7. For completed or review-ready work, run `scripts/collect_project_context.py` to create an evidence pack in the target project's output folder:
 
 ```bash
-python path/to/project-to-resume/scripts/collect_project_context.py --project <project-dir> --resume <resume-file> --out <output-md>
+python path/to/project-to-resume/scripts/collect_project_context.py --project <project-dir> --resume <resume-file> --out-dir <project-dir>/career-output --person-name <person> --out evidence.md
 ```
 
 If there is no resume:
 
 ```bash
-python path/to/project-to-resume/scripts/collect_project_context.py --project <project-dir> --out <output-md>
+python path/to/project-to-resume/scripts/collect_project_context.py --project <project-dir> --out-dir <project-dir>/career-output --person-name blank-resume --out evidence.md
 ```
 
 For a target job description:
 
 ```bash
-python path/to/project-to-resume/scripts/collect_project_context.py --project <project-dir> --job-description <jd.md> --out <output-md>
+python path/to/project-to-resume/scripts/collect_project_context.py --project <project-dir> --resume <resume-file> --job-description <jd.md> --out-dir <project-dir>/career-output --person-name <person> --out evidence.md
 ```
 
-To keep outputs separated for multiple people, prefer:
+8. Generate conservative template-based first drafts before LLM refinement:
 
 ```bash
-python path/to/project-to-resume/scripts/collect_project_context.py --project <project-dir> --resume <resume-file> --out-dir career-output --person-name <person> --out evidence.md
-```
-
-This writes under `career-output/<person>/`.
-
-5. Optionally generate conservative template-based first drafts before LLM refinement:
-
-```bash
-python path/to/project-to-resume/scripts/draft_career_artifacts.py --evidence <output-md> --out-dir career-output --person-name <person> --mode career-pack
+python path/to/project-to-resume/scripts/draft_career_artifacts.py --evidence <project-dir>/career-output/<person>/evidence.md --out-dir <project-dir>/career-output --person-name <person> --mode career-pack
 ```
 
 Treat generated files as first drafts, not final resume prose. Refine them with the evidence pack before sending.
 
-6. When the user wants deliverable files, export both Markdown and Word:
+9. Always export deliverable Markdown and Word files, even when no original resume exists:
 
 ```bash
-python path/to/project-to-resume/scripts/export_resume_docx.py --entry <draft-dir>/resume-entry.zh.md --resume <resume-file> --out-dir career-output --person-name <person>
+python path/to/project-to-resume/scripts/export_resume_docx.py --entry <project-dir>/career-output/<person>/resume-entry.zh.md --resume <resume-file> --out-dir <project-dir>/career-output --person-name <person>
 ```
 
-If the source resume is `.docx`, append the project entry to a copy of the original resume. If the source resume is `.pdf`, `.md`, or `.txt`, extract text and generate a new Word resume from the extracted content plus the project entry.
+If there is no resume, omit `--resume`; the script creates a new Word resume draft from a blank resume structure plus the project entry. If the source resume is `.docx`, append the project entry to a copy of the original resume. If the source resume is `.pdf`, `.md`, or `.txt`, extract text and generate a new Word resume from the extracted content plus the project entry.
 
-7. Read the evidence pack and the relevant reference:
+10. Read the evidence pack and the relevant reference:
    - `references/resume_entry_style.md` for resume bullets and project entries.
    - `references/career_artifact_outputs.md` for LinkedIn, portfolio, README, blog, and interview material.
    - `templates/` for reusable output structures.
    - `examples/` for a minimal input/output demonstration.
-8. Produce the requested artifact. If unspecified, produce a Chinese resume entry, a short project retrospective, and interview follow-up questions.
-9. For resume output, use this order:
+11. Produce the requested artifact. If unspecified, produce a Chinese resume entry, a short project retrospective, and interview follow-up questions.
+12. For resume output, use this order:
    - Project name
    - Role or responsibility line
    - Time period if known, otherwise leave a placeholder
@@ -78,7 +88,7 @@ If the source resume is `.docx`, append the project entry to a copy of the origi
    - Technical highlights
    - Interview talking points
    - Open questions for claims that need user confirmation
-10. Do not overwrite the user's original resume. For Word output, write a new `.docx` file instead of modifying the source resume in place.
+13. Do not overwrite the user's original resume. For Word output, write a new `.docx` file instead of modifying the source resume in place.
 
 ## Output Modes
 

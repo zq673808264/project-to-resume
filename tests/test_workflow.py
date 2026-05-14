@@ -28,6 +28,16 @@ class WorkflowTest(unittest.TestCase):
             evidence_root = temp_path / "evidence"
             draft_root = temp_path / "drafts"
             export_root = temp_path / "exports"
+            prepared_project = temp_path / "prepared-project"
+            prepared_project.mkdir()
+
+            self.run_script(
+                "scripts/prepare_resume_workspace.py",
+                "--project",
+                str(prepared_project),
+            )
+            self.assertTrue((prepared_project / "resume" / "README.md").exists())
+            self.assertTrue((prepared_project / "career-output").is_dir())
 
             self.run_script(
                 "scripts/collect_project_context.py",

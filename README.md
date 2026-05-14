@@ -66,6 +66,7 @@ project-to-resume/
     ├── collect_project_context.py
     ├── draft_career_artifacts.py
     ├── export_resume_docx.py
+    ├── prepare_resume_workspace.py
     └── update_dev_log.py
 └── tests/
     ├── fixtures/
@@ -108,7 +109,24 @@ Use this repository's README workflow to turn my project into truthful resume ar
 
 ## Usage
 
-### 1. Collect Project Evidence
+### 1. Prepare Project Folders
+
+When using this workflow inside another project, first create project-local input/output folders:
+
+```bash
+python /path/to/project-to-resume/scripts/prepare_resume_workspace.py --project /path/to/project
+```
+
+This creates:
+
+```text
+/path/to/project/resume/
+/path/to/project/career-output/
+```
+
+Ask the user whether they want to add an existing resume or a target JD. If yes, put those files in `/path/to/project/resume/`. If not, continue without them and generate a blank-resume draft.
+
+### 2. Collect Project Evidence
 
 Run the context collector against a project:
 
@@ -155,7 +173,7 @@ The generated evidence pack includes:
 - target job description text when provided
 - JD keyword match analysis
 
-### 2. Keep a Development Log
+### 3. Keep a Development Log
 
 During a project, append factual progress notes:
 
@@ -182,7 +200,7 @@ This creates or updates:
 career/project-dev-log.md
 ```
 
-### 3. Generate Template-Based Drafts
+### 4. Generate Template-Based Drafts
 
 Create a conservative first-pass career artifact package from an evidence pack:
 
@@ -204,7 +222,7 @@ Generated files:
 
 These drafts are intentionally conservative first drafts. Use Codex to refine them against the evidence pack and your target role before sending.
 
-### 4. Export Markdown and Word
+### 5. Export Markdown and Word
 
 Export a generated project entry to both Markdown and Word:
 
@@ -235,7 +253,7 @@ python tests/test_workflow.py
 
 The tests use fictional fixtures under `tests/fixtures/`.
 
-### 5. Ask Codex to Use the Skill
+### 6. Ask Codex to Use the Skill
 
 Example prompts:
 

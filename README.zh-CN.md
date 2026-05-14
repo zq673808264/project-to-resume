@@ -69,6 +69,7 @@ project-to-resume/
     ├── collect_project_context.py
     ├── draft_career_artifacts.py
     ├── export_resume_docx.py
+    ├── prepare_resume_workspace.py
     └── update_dev_log.py
 └── tests/
     ├── fixtures/
@@ -111,7 +112,24 @@ Claude Code、Gemini CLI、Cursor、GitHub Copilot、Aider 等工具可以直接
 
 ## 使用方法
 
-### 1. 收集项目证据
+### 1. 准备项目文件夹
+
+在其他项目里使用这个 workflow 时，先在目标项目里创建输入/输出文件夹：
+
+```bash
+python /path/to/project-to-resume/scripts/prepare_resume_workspace.py --project /path/to/project
+```
+
+这会创建：
+
+```text
+/path/to/project/resume/
+/path/to/project/career-output/
+```
+
+然后询问用户是否要添加已有简历或目标岗位 JD。如果需要，就让用户把文件放进 `/path/to/project/resume/`；如果不需要，就继续走空白简历路径，并生成新的简历输出文件。
+
+### 2. 收集项目证据
 
 对某个项目运行证据收集脚本：
 
@@ -158,7 +176,7 @@ python scripts/collect_project_context.py \
 - 目标岗位 JD 文本
 - JD 关键词匹配分析
 
-### 2. 持续记录开发过程
+### 3. 持续记录开发过程
 
 项目开发过程中，可以随时追加开发日志：
 
@@ -185,7 +203,7 @@ python scripts/update_dev_log.py \
 career/project-dev-log.md
 ```
 
-### 3. 生成模板化初稿
+### 4. 生成模板化初稿
 
 基于证据包生成保守的第一版求职材料草稿：
 
@@ -207,7 +225,7 @@ python scripts/draft_career_artifacts.py \
 
 这些初稿只是 first draft，不建议直接投递。适合再交给 Codex 根据证据包和目标岗位继续润色。
 
-### 4. 同时导出 Markdown 和 Word
+### 5. 同时导出 Markdown 和 Word
 
 把生成好的项目经历同时导出为 Markdown 和 Word：
 
@@ -238,7 +256,7 @@ python tests/test_workflow.py
 
 测试使用的是 `tests/fixtures/` 下的虚构项目、虚构简历和虚构 JD。
 
-### 5. 在 Codex 中调用 Skill
+### 6. 在 Codex 中调用 Skill
 
 示例提示词：
 

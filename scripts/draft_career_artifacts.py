@@ -110,8 +110,8 @@ def write_file(path: Path, text: str) -> None:
 
 
 def resume_zh(project_name: str, stack: list[str], project_types: list[str], keywords: list[str], match: dict[str, str]) -> str:
-    stack_text = "、".join(stack) if stack else "待确认技术栈"
-    type_text = "、".join(project_types) if project_types else "待确认项目类型"
+    stack_text = "、".join(stack) if stack else "项目中可确认的技术栈"
+    type_text = "、".join(project_types) if project_types else "软件项目"
     keyword_text = "、".join(keywords) if keywords else "无 JD 或待提取"
     return f"""
 # 中文简历项目经历初稿
@@ -126,7 +126,7 @@ def resume_zh(project_name: str, stack: list[str], project_types: list[str], key
 JD 关键词参考：{keyword_text}
 JD 匹配关键词：{match["matched"]}
 
-- 基于 {stack_text} 构建项目核心功能，围绕「待补充项目目标」完成代码实现、调试验证与文档整理。
+- 基于 {stack_text} 构建项目核心功能，围绕项目目标完成代码实现、调试验证与文档整理。
 - 结合 README、配置文件、开发日志与 git 记录沉淀项目证据，支持将真实技术实现转化为简历项目经历。
 - 设计项目复盘与多版本输出流程，可生成中文/英文简历、面试问答、作品集介绍和技术博客大纲。
 - 使用 AI Coding 工具辅助实现初版代码与方案探索，个人负责需求拆解、代码审查、集成调试和结果验证。
@@ -146,8 +146,8 @@ JD 匹配关键词：{match["matched"]}
 
 
 def resume_en(project_name: str, stack: list[str], project_types: list[str], keywords: list[str], match: dict[str, str]) -> str:
-    stack_text = ", ".join(stack) if stack else "stack to confirm"
-    type_text = ", ".join(project_types) if project_types else "project type to confirm"
+    stack_text = ", ".join(stack) if stack else "the confirmed project stack"
+    type_text = ", ".join(project_types) if project_types else "software project"
     keyword_text = ", ".join(keywords) if keywords else "none or not provided"
     return f"""
 # English Resume First Draft

@@ -96,6 +96,22 @@ class WorkflowTest(unittest.TestCase):
             self.assertTrue(docx.exists())
             self.assertGreater(docx.stat().st_size, 1000)
 
+            one_click_root = temp_path / "one-click"
+            self.run_script(
+                "scripts/run_project_to_resume.py",
+                "--project",
+                "tests/fixtures/sample-project",
+                "--workspace-root",
+                str(one_click_root),
+                "--resume",
+                "tests/fixtures/sample-resume.md",
+                "--person-name",
+                "Alice Zhang",
+                "--project-name",
+                "AI Notes Assistant",
+            )
+            self.assertTrue((one_click_root / "career-output" / "Alice-Zhang" / "AI-Notes-Assistant" / "resume-with-project.docx").exists())
+
 
 if __name__ == "__main__":
     unittest.main()

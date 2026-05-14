@@ -67,6 +67,7 @@ project-to-resume/
     ├── draft_career_artifacts.py
     ├── export_resume_docx.py
     ├── prepare_resume_workspace.py
+    ├── run_project_to_resume.py
     └── update_dev_log.py
 └── tests/
     ├── fixtures/
@@ -127,6 +128,18 @@ This creates:
 Ask the user whether they want to add an existing resume or a target JD. If yes, put those files in this repository's `resume/` folder. If not, continue without them and generate a blank-resume draft. Outputs are written under `career-output/<person-name>/<project-name>/`.
 
 ### 2. Collect Project Evidence
+
+Recommended one-command workflow:
+
+```bash
+python /path/to/project-to-resume/scripts/run_project_to_resume.py \
+  --project /path/to/project \
+  --workspace-root /path/to/project-to-resume \
+  --person-name "Alice Zhang" \
+  --project-name "AI Notes Assistant"
+```
+
+This prepares folders, collects evidence, creates drafts, and exports Markdown plus Word files under `career-output/<person>/<project>/`. If no resume or JD is placed in `resume/`, it generates a blank-resume output.
 
 Run the context collector against a project:
 

@@ -29,6 +29,16 @@ R_NS = "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
 ET.register_namespace("w", W_NS)
 ET.register_namespace("r", R_NS)
 
+PROJECT_SECTION_TITLES = {"项目经历", "Projects", "Project Experience"}
+PLACEHOLDER_PATTERNS = (
+    "待补充项目目标",
+    "待确认技术栈",
+    "待确认项目类型",
+    "confirmed project goal",
+    "stack to confirm",
+    "project type to confirm",
+)
+
 
 def qn(name: str) -> str:
     prefix, tag = name.split(":", 1)
@@ -39,6 +49,14 @@ def qn(name: str) -> str:
 def markdown_blocks(markdown: str) -> list[tuple[str, str]]:
     blocks: list[tuple[str, str]] = []
     in_code = False
+
+    def clean_inline(value: str) -> str:
+        value = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", value)
+        value = re.sub(r"(\*\*|__)(.*?)\1", r"\2", value)
+        value = re.sub(r"(\*|_)(.*?)\1", r"\2", value)
+        value = re.sub(r"`([^`]+)`", r"\1", value)
+        return value.strip()
+
     for raw_line in markdown.splitlines():
         line = raw_line.rstrip()
         if line.strip().startswith("```"):
@@ -49,19 +67,26 @@ def markdown_blocks(markdown: str) -> list[tuple[str, str]]:
         stripped = line.strip()
         if not stripped:
             continue
+        if stripped.startswith(">"):
+            continue
         if stripped.startswith("# "):
-            blocks.append(("title", stripped[2:].strip()))
+            blocks.append(("title", clean_inline(stripped[2:])))
         elif stripped.startswith("## "):
-            blocks.append(("heading1", stripped[3:].strip()))
+            blocks.append(("heading1", clean_inline(stripped[3:])))
         elif stripped.startswith("### "):
-            blocks.append(("heading2", stripped[4:].strip()))
+            blocks.append(("heading2", clean_inline(stripped[4:])))
         elif stripped.startswith("- "):
-            blocks.append(("bullet", stripped[2:].strip()))
+            blocks.append(("bullet", clean_inline(stripped[2:])))
         elif re.match(r"^\d+\.\s+", stripped):
-            blocks.append(("number", re.sub(r"^\d+\.\s+", "", stripped)))
+            blocks.append(("number", clean_inline(re.sub(r"^\d+\.\s+", "", stripped))))
         else:
-            blocks.append(("paragraph", stripped))
+            blocks.append(("paragraph", clean_inline(stripped)))
     return blocks
+
+
+def has_unresolved_placeholders(markdown: str) -> bool:
+    lower = markdown.lower()
+    return any(pattern.lower() in lower for pattern in PLACEHOLDER_PATTERNS)
 
 
 def plain_text_blocks(text: str) -> list[tuple[str, str]]:
@@ -197,6 +222,53 @@ def create_docx(output: Path, blocks: list[tuple[str, str]]) -> None:
         zf.writestr("word/document.xml", build_document_xml(blocks))
 
 
+def paragraph_text(element: ET.Element) -> str:
+    return "".join(text.text or "" for text in element.iter(qn("w:t"))).strip()
+
+
+def compact_text(value: str) -> str:
+    return re.sub(r"\s+", "", value).strip()
+
+
+def find_project_section_insert_index(body: ET.Element) -> int | None:
+    children = list(body)
+    project_index: int | None = None
+    section_values = {compact_text(title).lower() for title in SECTION_TITLES}
+    project_values = {compact_text(title).lower() for title in PROJECT_SECTION_TITLES}
+
+    for index, child in enumerate(children):
+        if child.tag != qn("w:p"):
+            continue
+        value = compact_text(paragraph_text(child)).lower()
+        if value in project_values:
+            project_index = index
+            break
+    if project_index is None:
+        return None
+
+    for index in range(project_index + 1, len(children)):
+        child = children[index]
+        if child.tag != qn("w:p"):
+            continue
+        value = compact_text(paragraph_text(child)).lower()
+        if value in section_values and value not in project_values:
+            return index
+    sect_pr = body.find(qn("w:sectPr"))
+    return children.index(sect_pr) if sect_pr is not None else len(children)
+
+
+def project_entry_blocks(entry_markdown: str) -> list[tuple[str, str]]:
+    blocks = markdown_blocks(entry_markdown)
+    cleaned: list[tuple[str, str]] = []
+    for style, text in blocks:
+        if style == "title":
+            continue
+        if style == "heading1" and compact_text(text) in {compact_text(title) for title in PROJECT_SECTION_TITLES}:
+            continue
+        cleaned.append((style, text))
+    return cleaned
+
+
 def append_to_docx(source: Path, output: Path, entry_markdown: str, heading: str) -> None:
     output.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory() as temp_dir:
@@ -210,9 +282,13 @@ def append_to_docx(source: Path, output: Path, entry_markdown: str, heading: str
         if body is None:
             raise ValueError("Invalid DOCX: missing document body")
 
-        sect_pr = body.find(qn("w:sectPr"))
-        insert_index = list(body).index(sect_pr) if sect_pr is not None else len(body)
-        new_blocks = [("heading1", heading), *markdown_blocks(entry_markdown)]
+        insert_index = find_project_section_insert_index(body)
+        if insert_index is None:
+            sect_pr = body.find(qn("w:sectPr"))
+            insert_index = list(body).index(sect_pr) if sect_pr is not None else len(body)
+            new_blocks = [("heading1", heading), *project_entry_blocks(entry_markdown)]
+        else:
+            new_blocks = project_entry_blocks(entry_markdown)
         for offset, (style, text) in enumerate(new_blocks):
             body.insert(insert_index + offset, paragraph(text, style))
 
@@ -232,8 +308,10 @@ def build_new_resume_blocks(resume_text: str, entry_markdown: str, source_name: 
         blocks.append(("title", "Resume"))
         blocks.append(("paragraph", "Original resume content was not provided. Add personal information, education, experience, and skills here."))
 
-    blocks.append(("heading1", "项目经历"))
-    blocks.extend(markdown_blocks(entry_markdown))
+    has_project_section = any(style == "heading1" and compact_text(text) in {compact_text(title) for title in PROJECT_SECTION_TITLES} for style, text in blocks)
+    if not has_project_section:
+        blocks.append(("heading1", "项目经历"))
+    blocks.extend(project_entry_blocks(entry_markdown))
     blocks.append(("heading2", "生成说明"))
     blocks.append(("paragraph", f"This resume was generated from source resume: {source_name or 'not provided'}. Review formatting and private information before sending."))
     return blocks
@@ -249,6 +327,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--person-name", help="Person name for the output subfolder. Defaults to the resume filename or detected resume text.")
     parser.add_argument("--project-name", default="project", help="Project name for the output subfolder.")
     parser.add_argument("--append-heading", default="项目经历补充", help="Heading used when appending to an existing DOCX.")
+    parser.add_argument("--allow-first-draft", action="store_true", help="Allow exporting drafts that still contain obvious placeholders.")
     return parser.parse_args()
 
 
@@ -262,6 +341,9 @@ def main() -> int:
         return 2
 
     entry_markdown = read_text(entry_path)
+    if has_unresolved_placeholders(entry_markdown) and not args.allow_first_draft:
+        print("Entry still contains first-draft placeholders. Refine it before exporting, or pass --allow-first-draft.", file=sys.stderr)
+        return 3
     resume_text = source_resume_text(resume_path) if resume_path and resume_path.exists() and resume_path.suffix.lower() != ".docx" else ""
     person = safe_slug(args.person_name or infer_person_name(resume_path, resume_text))
     person_dir = Path(args.out_dir).resolve() / person / safe_slug(args.project_name)

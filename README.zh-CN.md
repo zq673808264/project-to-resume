@@ -70,6 +70,7 @@ project-to-resume/
     ├── draft_career_artifacts.py
     ├── export_resume_docx.py
     ├── prepare_resume_workspace.py
+    ├── run_project_to_resume.py
     └── update_dev_log.py
 └── tests/
     ├── fixtures/
@@ -130,6 +131,18 @@ python /path/to/project-to-resume/scripts/prepare_resume_workspace.py --project 
 然后询问用户是否要添加已有简历或目标岗位 JD。如果需要，就让用户把文件放进本仓库的 `resume/` 文件夹；如果不需要，就继续走空白简历路径，并生成新的简历输出文件。输出默认位于 `career-output/<人员名>/<项目名>/`。
 
 ### 2. 收集项目证据
+
+推荐使用一键工作流：
+
+```bash
+python /path/to/project-to-resume/scripts/run_project_to_resume.py \
+  --project /path/to/project \
+  --workspace-root /path/to/project-to-resume \
+  --person-name "Alice Zhang" \
+  --project-name "AI Notes Assistant"
+```
+
+这个命令会准备文件夹、收集证据、生成初稿，并导出 Markdown 和 Word 文件到 `career-output/<人员名>/<项目名>/`。如果 `resume/` 里没有简历或 JD，就会生成空白简历输出。
 
 对某个项目运行证据收集脚本：
 

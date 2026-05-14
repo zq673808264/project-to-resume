@@ -39,7 +39,17 @@ Wait for a clear answer when possible.
 python path/to/project-to-resume/scripts/update_dev_log.py --project <project-dir>
 ```
 
-7. For completed or review-ready work, run `scripts/collect_project_context.py` to create an evidence pack in the target project's output folder:
+7. Prefer the one-command workflow so the AI does not stop after only writing chat output:
+
+```bash
+python path/to/project-to-resume/scripts/run_project_to_resume.py --project <project-dir> --workspace-root <project-to-resume> --person-name <person> --project-name <project>
+```
+
+This command prepares folders, collects evidence, generates drafts, and exports Markdown plus Word files under `<project-to-resume>/career-output/<person>/<project>/`. If a resume or JD exists in `<project-to-resume>/resume/`, it is auto-detected. If none exists, it generates a blank-resume output.
+
+After the one-command workflow finishes, inspect `<project-to-resume>/career-output/<person>/<project>/resume-entry.zh.md`. If it still reads like a generic first draft, rewrite that Markdown file using the evidence pack before final export. Do not leave obvious template language in the final Word resume.
+
+8. If manual control is needed, run `scripts/collect_project_context.py` to create an evidence pack in the central output folder:
 
 ```bash
 python path/to/project-to-resume/scripts/collect_project_context.py --project <project-dir> --resume <resume-file> --out-dir <project-to-resume>/career-output --person-name <person> --project-name <project> --out evidence.md
@@ -57,7 +67,7 @@ For a target job description:
 python path/to/project-to-resume/scripts/collect_project_context.py --project <project-dir> --resume <resume-file> --job-description <jd.md> --out-dir <project-to-resume>/career-output --person-name <person> --project-name <project> --out evidence.md
 ```
 
-8. Generate conservative template-based first drafts before LLM refinement:
+9. Generate conservative template-based first drafts before LLM refinement:
 
 ```bash
 python path/to/project-to-resume/scripts/draft_career_artifacts.py --evidence <project-to-resume>/career-output/<person>/<project>/evidence.md --out-dir <project-to-resume>/career-output --person-name <person> --project-name <project> --mode career-pack
@@ -65,7 +75,7 @@ python path/to/project-to-resume/scripts/draft_career_artifacts.py --evidence <p
 
 Treat generated files as first drafts, not final resume prose. Refine them with the evidence pack before sending.
 
-9. Always export deliverable Markdown and Word files, even when no original resume exists:
+10. Always export deliverable Markdown and Word files, even when no original resume exists:
 
 ```bash
 python path/to/project-to-resume/scripts/export_resume_docx.py --entry <project-to-resume>/career-output/<person>/<project>/resume-entry.zh.md --resume <resume-file> --out-dir <project-to-resume>/career-output --person-name <person> --project-name <project>
@@ -73,13 +83,13 @@ python path/to/project-to-resume/scripts/export_resume_docx.py --entry <project-
 
 If there is no resume, omit `--resume`; the script creates a new Word resume draft from a blank resume structure plus the project entry. If the source resume is `.docx`, append the project entry to a copy of the original resume. If the source resume is `.pdf`, `.md`, or `.txt`, extract text and generate a new Word resume from the extracted content plus the project entry.
 
-10. Read the evidence pack and the relevant reference:
+11. Read the evidence pack and the relevant reference:
    - `references/resume_entry_style.md` for resume bullets and project entries.
    - `references/career_artifact_outputs.md` for LinkedIn, portfolio, README, blog, and interview material.
    - `templates/` for reusable output structures.
    - `examples/` for a minimal input/output demonstration.
-11. Produce the requested artifact. If unspecified, produce a Chinese resume entry, a short project retrospective, and interview follow-up questions.
-12. For resume output, use this order:
+12. Produce the requested artifact. If unspecified, produce a Chinese resume entry, a short project retrospective, and interview follow-up questions.
+13. For resume output, use this order:
    - Project name
    - Role or responsibility line
    - Time period if known, otherwise leave a placeholder
@@ -88,7 +98,7 @@ If there is no resume, omit `--resume`; the script creates a new Word resume dra
    - Technical highlights
    - Interview talking points
    - Open questions for claims that need user confirmation
-13. Do not overwrite the user's original resume. For Word output, write a new `.docx` file instead of modifying the source resume in place.
+14. Do not overwrite the user's original resume. For Word output, write a new `.docx` file instead of modifying the source resume in place.
 
 ## Output Modes
 
@@ -183,3 +193,9 @@ Ask only when needed:
 - Should the entry be conservative, balanced, or more achievement-oriented?
 - Are there verified metrics, deployment links, user counts, or performance improvements?
 - Should Codex update a specific resume file or only create a separate draft?
+
+## Export Quality Rules
+
+- Do not export Word from unresolved template placeholders. Refine first-draft bullets before final export.
+- Word export must strip Markdown inline markers such as `**bold**`, `_italic_`, links, and backticks.
+- When the source resume already has a `项目经历` or `Projects` section, insert the new project into that section instead of creating a duplicate project section.

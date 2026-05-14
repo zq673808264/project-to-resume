@@ -111,7 +111,7 @@ Use this repository's README workflow to turn my project into truthful resume ar
 
 ### 1. Prepare Project Folders
 
-When using this workflow inside another project, first create project-local input/output folders:
+When using this workflow for another project, first prepare the central input/output folders in this repository:
 
 ```bash
 python /path/to/project-to-resume/scripts/prepare_resume_workspace.py --project /path/to/project
@@ -120,11 +120,11 @@ python /path/to/project-to-resume/scripts/prepare_resume_workspace.py --project 
 This creates:
 
 ```text
-/path/to/project/resume/
-/path/to/project/career-output/
+/path/to/project-to-resume/resume/
+/path/to/project-to-resume/career-output/
 ```
 
-Ask the user whether they want to add an existing resume or a target JD. If yes, put those files in `/path/to/project/resume/`. If not, continue without them and generate a blank-resume draft.
+Ask the user whether they want to add an existing resume or a target JD. If yes, put those files in this repository's `resume/` folder. If not, continue without them and generate a blank-resume draft. Outputs are written under `career-output/<person-name>/<project-name>/`.
 
 ### 2. Collect Project Evidence
 
@@ -155,10 +155,11 @@ python scripts/collect_project_context.py \
   --job-description /path/to/jd.md \
   --out-dir career-output \
   --person-name "Alice Zhang" \
+  --project-name "AI Notes Assistant" \
   --out evidence.md
 ```
 
-This writes `career-output/Alice-Zhang/evidence.md`.
+This writes `career-output/Alice-Zhang/<project-name>/evidence.md`.
 
 The generated evidence pack includes:
 
@@ -206,9 +207,10 @@ Create a conservative first-pass career artifact package from an evidence pack:
 
 ```bash
 python scripts/draft_career_artifacts.py \
-  --evidence career-output/Alice-Zhang/evidence.md \
+  --evidence career-output/Alice-Zhang/AI-Notes-Assistant/evidence.md \
   --out-dir career-output \
   --person-name "Alice Zhang" \
+  --project-name "AI Notes Assistant" \
   --mode career-pack
 ```
 
@@ -228,10 +230,11 @@ Export a generated project entry to both Markdown and Word:
 
 ```bash
 python scripts/export_resume_docx.py \
-  --entry career-output/Alice-Zhang/resume-entry.zh.md \
+  --entry career-output/Alice-Zhang/AI-Notes-Assistant/resume-entry.zh.md \
   --resume resume/original-resume.docx \
   --out-dir career-output \
-  --person-name "Alice Zhang"
+  --person-name "Alice Zhang" \
+  --project-name "AI Notes Assistant"
 ```
 
 Behavior:
@@ -241,7 +244,7 @@ Behavior:
 - PDF extraction is reflowed before Word generation to reduce broken lines and rebuild common resume sections.
 - If the source resume is `.md` or `.txt`, the script creates a new Word resume from that text plus the project entry.
 - The original resume file is never overwritten.
-- By default outputs are written under `career-output/<person-name>/`.
+- By default outputs are written under `career-output/<person-name>/<project-name>/`.
 
 ## Tests
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Prepare per-project folders for project-to-resume inputs and outputs."""
+"""Prepare central or per-project folders for project-to-resume inputs and outputs."""
 
 from __future__ import annotations
 
@@ -22,6 +22,18 @@ If no job description is provided, project-to-resume will generate a general-pur
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--project", default=".", help="Target project directory.")
+    parser.add_argument(
+        "--workspace-root",
+        default=Path(__file__).resolve().parents[1],
+        type=Path,
+        help="Central project-to-resume workspace root. Defaults to this repository root.",
+    )
+    parser.add_argument(
+        "--mode",
+        choices=["central", "project"],
+        default="central",
+        help="central writes resume/career-output under the project-to-resume root; project writes them under the target project.",
+    )
     parser.add_argument("--output-dir-name", default="career-output", help="Output folder name inside the target project.")
     parser.add_argument("--resume-dir-name", default="resume", help="Input resume folder name inside the target project.")
     return parser.parse_args()
@@ -33,8 +45,10 @@ def main() -> int:
     if not project.exists() or not project.is_dir():
         raise SystemExit(f"Project directory not found: {project}")
 
-    resume_dir = project / args.resume_dir_name
-    output_dir = project / args.output_dir_name
+    workspace_root = args.workspace_root.resolve()
+    base = workspace_root if args.mode == "central" else project
+    resume_dir = base / args.resume_dir_name
+    output_dir = base / args.output_dir_name
     resume_dir.mkdir(parents=True, exist_ok=True)
     output_dir.mkdir(parents=True, exist_ok=True)
 

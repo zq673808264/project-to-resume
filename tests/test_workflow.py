@@ -36,8 +36,8 @@ class WorkflowTest(unittest.TestCase):
                 "--project",
                 str(prepared_project),
             )
-            self.assertTrue((prepared_project / "resume" / "README.md").exists())
-            self.assertTrue((prepared_project / "career-output").is_dir())
+            self.assertTrue((ROOT / "resume" / "README.md").exists())
+            self.assertTrue((ROOT / "career-output").is_dir())
 
             self.run_script(
                 "scripts/collect_project_context.py",
@@ -51,10 +51,12 @@ class WorkflowTest(unittest.TestCase):
                 str(evidence_root),
                 "--person-name",
                 "Alice Zhang",
+                "--project-name",
+                "AI Notes Assistant",
                 "--out",
                 "evidence.md",
             )
-            evidence = evidence_root / "Alice-Zhang" / "evidence.md"
+            evidence = evidence_root / "Alice-Zhang" / "AI-Notes-Assistant" / "evidence.md"
             self.assertTrue(evidence.exists())
             evidence_text = evidence.read_text(encoding="utf-8")
             self.assertIn("## JD Keyword Match", evidence_text)
@@ -69,8 +71,10 @@ class WorkflowTest(unittest.TestCase):
                 str(draft_root),
                 "--person-name",
                 "Alice Zhang",
+                "--project-name",
+                "AI Notes Assistant",
             )
-            draft = draft_root / "Alice-Zhang" / "resume-entry.zh.md"
+            draft = draft_root / "Alice-Zhang" / "AI-Notes-Assistant" / "resume-entry.zh.md"
             self.assertTrue(draft.exists())
             self.assertIn("first draft", draft.read_text(encoding="utf-8").lower())
 
@@ -84,9 +88,11 @@ class WorkflowTest(unittest.TestCase):
                 str(export_root),
                 "--person-name",
                 "Alice Zhang",
+                "--project-name",
+                "AI Notes Assistant",
             )
-            self.assertTrue((export_root / "Alice-Zhang" / "resume-entry.md").exists())
-            docx = export_root / "Alice-Zhang" / "resume-with-project.docx"
+            self.assertTrue((export_root / "Alice-Zhang" / "AI-Notes-Assistant" / "resume-entry.md").exists())
+            docx = export_root / "Alice-Zhang" / "AI-Notes-Assistant" / "resume-with-project.docx"
             self.assertTrue(docx.exists())
             self.assertGreater(docx.stat().st_size, 1000)
 

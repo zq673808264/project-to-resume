@@ -20,15 +20,15 @@ Do not invent technologies, metrics, business impact, team size, users, revenue,
 python path/to/project-to-resume/scripts/prepare_resume_workspace.py --project <project-dir>
 ```
 
-This creates `<project-dir>/resume/` for optional user inputs and `<project-dir>/career-output/` for generated files.
+This creates `<project-to-resume>/resume/` for optional user inputs and `<project-to-resume>/career-output/` for generated files. Use project-local folders only when the user explicitly asks.
 
 3. Ask the user whether they want to provide an existing resume and/or a target job description. Keep the question short:
 
-`Do you want to add an existing resume or target JD? If yes, put the files in <project-dir>/resume/ and tell me when ready. If not, I will generate a blank-resume draft from this project.`
+`Do you want to add an existing resume or target JD? If yes, put the files in the project-to-resume resume/ folder and tell me when ready. If not, I will generate a blank-resume draft from this project.`
 
 Wait for a clear answer when possible.
 
-4. If the user says yes, inspect `<project-dir>/resume/` and use available files:
+4. If the user says yes, inspect `<project-to-resume>/resume/` and use available files:
    - Existing resume: prefer `.docx`, then `.md`, `.txt`, `.pdf`.
    - Job description: prefer filenames containing `jd`, `job`, `岗位`, or `职位` with `.md` or `.txt`.
    - If files are missing after the user says they are ready, ask once more or continue with the blank-resume path if they prefer.
@@ -42,25 +42,25 @@ python path/to/project-to-resume/scripts/update_dev_log.py --project <project-di
 7. For completed or review-ready work, run `scripts/collect_project_context.py` to create an evidence pack in the target project's output folder:
 
 ```bash
-python path/to/project-to-resume/scripts/collect_project_context.py --project <project-dir> --resume <resume-file> --out-dir <project-dir>/career-output --person-name <person> --out evidence.md
+python path/to/project-to-resume/scripts/collect_project_context.py --project <project-dir> --resume <resume-file> --out-dir <project-to-resume>/career-output --person-name <person> --project-name <project> --out evidence.md
 ```
 
 If there is no resume:
 
 ```bash
-python path/to/project-to-resume/scripts/collect_project_context.py --project <project-dir> --out-dir <project-dir>/career-output --person-name blank-resume --out evidence.md
+python path/to/project-to-resume/scripts/collect_project_context.py --project <project-dir> --out-dir <project-to-resume>/career-output --person-name blank-resume --project-name <project> --out evidence.md
 ```
 
 For a target job description:
 
 ```bash
-python path/to/project-to-resume/scripts/collect_project_context.py --project <project-dir> --resume <resume-file> --job-description <jd.md> --out-dir <project-dir>/career-output --person-name <person> --out evidence.md
+python path/to/project-to-resume/scripts/collect_project_context.py --project <project-dir> --resume <resume-file> --job-description <jd.md> --out-dir <project-to-resume>/career-output --person-name <person> --project-name <project> --out evidence.md
 ```
 
 8. Generate conservative template-based first drafts before LLM refinement:
 
 ```bash
-python path/to/project-to-resume/scripts/draft_career_artifacts.py --evidence <project-dir>/career-output/<person>/evidence.md --out-dir <project-dir>/career-output --person-name <person> --mode career-pack
+python path/to/project-to-resume/scripts/draft_career_artifacts.py --evidence <project-to-resume>/career-output/<person>/<project>/evidence.md --out-dir <project-to-resume>/career-output --person-name <person> --project-name <project> --mode career-pack
 ```
 
 Treat generated files as first drafts, not final resume prose. Refine them with the evidence pack before sending.
@@ -68,7 +68,7 @@ Treat generated files as first drafts, not final resume prose. Refine them with 
 9. Always export deliverable Markdown and Word files, even when no original resume exists:
 
 ```bash
-python path/to/project-to-resume/scripts/export_resume_docx.py --entry <project-dir>/career-output/<person>/resume-entry.zh.md --resume <resume-file> --out-dir <project-dir>/career-output --person-name <person>
+python path/to/project-to-resume/scripts/export_resume_docx.py --entry <project-to-resume>/career-output/<person>/<project>/resume-entry.zh.md --resume <resume-file> --out-dir <project-to-resume>/career-output --person-name <person> --project-name <project>
 ```
 
 If there is no resume, omit `--resume`; the script creates a new Word resume draft from a blank resume structure plus the project entry. If the source resume is `.docx`, append the project entry to a copy of the original resume. If the source resume is `.pdf`, `.md`, or `.txt`, extract text and generate a new Word resume from the extracted content plus the project entry.

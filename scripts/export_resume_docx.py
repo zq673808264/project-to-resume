@@ -247,6 +247,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--out-docx", help="DOCX output path. Defaults to <out-dir>/<person>/resume-with-project.docx.")
     parser.add_argument("--out-dir", default="career-output", help="Output root used when --out-md or --out-docx is omitted.")
     parser.add_argument("--person-name", help="Person name for the output subfolder. Defaults to the resume filename or detected resume text.")
+    parser.add_argument("--project-name", default="project", help="Project name for the output subfolder.")
     parser.add_argument("--append-heading", default="项目经历补充", help="Heading used when appending to an existing DOCX.")
     return parser.parse_args()
 
@@ -263,7 +264,7 @@ def main() -> int:
     entry_markdown = read_text(entry_path)
     resume_text = source_resume_text(resume_path) if resume_path and resume_path.exists() and resume_path.suffix.lower() != ".docx" else ""
     person = safe_slug(args.person_name or infer_person_name(resume_path, resume_text))
-    person_dir = Path(args.out_dir).resolve() / person
+    person_dir = Path(args.out_dir).resolve() / person / safe_slug(args.project_name)
     out_md = Path(args.out_md).resolve() if args.out_md else person_dir / "resume-entry.md"
     out_docx = Path(args.out_docx).resolve() if args.out_docx else person_dir / "resume-with-project.docx"
 

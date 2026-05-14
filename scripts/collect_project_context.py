@@ -478,6 +478,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument("--out", default="project_resume_evidence.md", help="Markdown output path.")
     parser.add_argument("--out-dir", help="Optional output root. When provided, writes under <out-dir>/<person-name>/<out filename>.")
     parser.add_argument("--person-name", help="Person name used for output subfolder when --out-dir is provided.")
+    parser.add_argument("--project-name", help="Project name used for output subfolder when --out-dir is provided.")
     return parser.parse_args(argv)
 
 
@@ -491,7 +492,8 @@ def main(argv: list[str]) -> int:
     if args.out_dir:
         resume_path = Path(args.resume) if args.resume else auto_resume(project)
         person = args.person_name or (resume_path.stem if resume_path else "default")
-        output = Path(args.out_dir) / safe_slug(person) / output.name
+        project_name = args.project_name or project.name
+        output = Path(args.out_dir) / safe_slug(person) / safe_slug(project_name) / output.name
     output = output.resolve()
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(render(args), encoding="utf-8")

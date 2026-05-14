@@ -114,7 +114,7 @@ Claude Code、Gemini CLI、Cursor、GitHub Copilot、Aider 等工具可以直接
 
 ### 1. 准备项目文件夹
 
-在其他项目里使用这个 workflow 时，先在目标项目里创建输入/输出文件夹：
+在其他项目里使用这个 workflow 时，先准备本仓库根目录下的集中输入/输出文件夹：
 
 ```bash
 python /path/to/project-to-resume/scripts/prepare_resume_workspace.py --project /path/to/project
@@ -123,11 +123,11 @@ python /path/to/project-to-resume/scripts/prepare_resume_workspace.py --project 
 这会创建：
 
 ```text
-/path/to/project/resume/
-/path/to/project/career-output/
+/path/to/project-to-resume/resume/
+/path/to/project-to-resume/career-output/
 ```
 
-然后询问用户是否要添加已有简历或目标岗位 JD。如果需要，就让用户把文件放进 `/path/to/project/resume/`；如果不需要，就继续走空白简历路径，并生成新的简历输出文件。
+然后询问用户是否要添加已有简历或目标岗位 JD。如果需要，就让用户把文件放进本仓库的 `resume/` 文件夹；如果不需要，就继续走空白简历路径，并生成新的简历输出文件。输出默认位于 `career-output/<人员名>/<项目名>/`。
 
 ### 2. 收集项目证据
 
@@ -158,10 +158,11 @@ python scripts/collect_project_context.py \
   --job-description /path/to/jd.md \
   --out-dir career-output \
   --person-name "Alice Zhang" \
+  --project-name "AI Notes Assistant" \
   --out evidence.md
 ```
 
-会输出到 `career-output/Alice-Zhang/evidence.md`。
+会输出到 `career-output/Alice-Zhang/<项目名>/evidence.md`。
 
 生成的证据包会包含：
 
@@ -209,9 +210,10 @@ career/project-dev-log.md
 
 ```bash
 python scripts/draft_career_artifacts.py \
-  --evidence career-output/Alice-Zhang/evidence.md \
+  --evidence career-output/Alice-Zhang/AI-Notes-Assistant/evidence.md \
   --out-dir career-output \
   --person-name "Alice Zhang" \
+  --project-name "AI Notes Assistant" \
   --mode career-pack
 ```
 
@@ -231,10 +233,11 @@ python scripts/draft_career_artifacts.py \
 
 ```bash
 python scripts/export_resume_docx.py \
-  --entry career-output/Alice-Zhang/resume-entry.zh.md \
+  --entry career-output/Alice-Zhang/AI-Notes-Assistant/resume-entry.zh.md \
   --resume resume/original-resume.docx \
   --out-dir career-output \
-  --person-name "Alice Zhang"
+  --person-name "Alice Zhang" \
+  --project-name "AI Notes Assistant"
 ```
 
 处理逻辑：
@@ -244,7 +247,7 @@ python scripts/export_resume_docx.py \
 - PDF 提取后会先做重排清洗，尽量合并被 PDF 切碎的换行，并识别常见简历栏目。
 - 如果原始简历是 `.md` 或 `.txt`，脚本会用原文本加项目经历生成新的 Word 简历。
 - 不会覆盖原始简历文件。
-- 默认会输出到 `career-output/<人员名>/`，避免多个人的简历混在一起。
+- 默认会输出到 `career-output/<人员名>/<项目名>/`，避免多个人、多项目的简历材料混在一起。
 
 ## 测试
 
